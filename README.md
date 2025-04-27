@@ -53,3 +53,10 @@ Under the "Purchased" category, you may set any of the items' values to 1 to ind
 
 ![image](https://github.com/user-attachments/assets/37af0d84-2fed-4ec7-b06e-94a5fb8c761d)
 
+
+# Contributions
+Feel free to contribute any changes. If something looks wrong, I'll just comment on the PR - no biggie!
+
+The project should be usable either with Visual Studio 2022, or any other text editor with the `dotnet` command line utility.
+
+The code isn't the greatest as originally it wasn't intended on being shared (cleanups will also be accepted) :)
