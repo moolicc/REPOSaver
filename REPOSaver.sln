@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REPOSaver", "REPOSaver\REPOSaver.csproj", "{AB2747D9-2B4C-46B2-A8EF-8892AFB7AA80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB2747D9-2B4C-46B2-A8EF-8892AFB7AA80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB2747D9-2B4C-46B2-A8EF-8892AFB7AA80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB2747D9-2B4C-46B2-A8EF-8892AFB7AA80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB2747D9-2B4C-46B2-A8EF-8892AFB7AA80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07F6F7CD-96F3-42F5-9107-B20204D97EB9}
+	EndGlobalSection
+EndGlobal
