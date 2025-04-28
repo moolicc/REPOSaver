@@ -65,8 +65,8 @@ jobs:
       - name: Restore packages
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --no-restore -c Release
+      - name: Publish
+        run: dotnet publish --no-restore -c Release
 
       - name: get_version
         run: |
@@ -77,9 +77,11 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
         with:
-            artifacts: "REPOSaver/bin/Release/net9.0-windows/*"
+            artifacts: "REPOSaver/bin/Release/net9.0-windows/publish"
             generateReleaseNotes: true
             name: "Version ${{ steps.get_version.outputs.version }}"
+            commit: master
+            tag: "v${{ steps.get_version.outputs.version }}"
       
           
 
