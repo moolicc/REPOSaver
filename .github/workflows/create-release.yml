@@ -68,12 +68,15 @@ jobs:
       - name: Publish
         run: dotnet publish --no-restore -c Release
 
-      - name: get_version
+      - name: Save version to file
         run: |
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
-          "version=$xml.Project.PropertyGroup.AssemblyVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $xml.Project.PropertyGroup.AssemblyVersion | Out-File ver.txt
 
+      - name: get_version
+        run: |
+          echo "version=$(cat ver.txt)" >> $GITHUB_ENV
       
       - name: Zip output
         run: |
@@ -85,9 +88,9 @@ jobs:
         with:
             artifacts: binaries.zip
             generateReleaseNotes: true
-            name: "Version ${{ steps.get_version.outputs.version }}"
+            name: "Version ${{ env.version }}"
             commit: master
-            tag: "v${{ steps.get_version.outputs.version }}"
+            tag: "v${{ env.version }}"
       
           
 
