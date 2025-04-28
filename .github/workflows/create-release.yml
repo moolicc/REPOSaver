@@ -78,8 +78,8 @@ jobs:
       - name: get_version
         run: |
           cd REPOSaver/
-          echo "version=$(cat ver.txt)" >> $GITHUB_ENV
-          echo "version=$(cat ver.txt)"
+          echo "VER=$(cat ver.txt)" >> $GITHUB_OUTPUT
+          echo "VER=$(cat ver.txt)"
       
       - name: Zip output
         run: |
@@ -91,9 +91,9 @@ jobs:
         with:
             artifacts: binaries.zip
             generateReleaseNotes: true
-            name: "Version ${{ env.version }}"
+            name: "Version ${{ steps.get_version.outputs.VER }}"
             commit: master
-            tag: "v${{ env.version }}"
+            tag: "v${{ steps.get_version.outputs.VER }}"
       
           
 
