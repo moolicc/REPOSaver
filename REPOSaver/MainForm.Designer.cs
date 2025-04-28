@@ -91,11 +91,15 @@
             moa_restoreNowToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator10 = new ToolStripSeparator();
             moa_openBackupInExplorerToolStripMenuItem = new ToolStripMenuItem();
+            statusStrip1 = new StatusStrip();
+            Lbl_Toolstrip_Version = new ToolStripStatusLabel();
+            Pgs_Toolstrip_Status = new ToolStripProgressBar();
             groupBox1.SuspendLayout();
             Tls_ListItem.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             Mnu_ListItem.SuspendLayout();
             Mnu_OrphanArchive.SuspendLayout();
+            statusStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // Txt_Repo
@@ -594,11 +598,34 @@
             moa_openBackupInExplorerToolStripMenuItem.Text = "Open Backup in Explorer";
             moa_openBackupInExplorerToolStripMenuItem.Click += moa_openBackupInExplorerToolStripMenuItem_Click;
             // 
+            // statusStrip1
+            // 
+            statusStrip1.Items.AddRange(new ToolStripItem[] { Lbl_Toolstrip_Version, Pgs_Toolstrip_Status });
+            statusStrip1.Location = new Point(0, 485);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.RightToLeft = RightToLeft.Yes;
+            statusStrip1.Size = new Size(747, 22);
+            statusStrip1.TabIndex = 6;
+            statusStrip1.Text = "statusStrip1";
+            // 
+            // Lbl_Toolstrip_Version
+            // 
+            Lbl_Toolstrip_Version.Name = "Lbl_Toolstrip_Version";
+            Lbl_Toolstrip_Version.Size = new Size(0, 17);
+            // 
+            // Pgs_Toolstrip_Status
+            // 
+            Pgs_Toolstrip_Status.Name = "Pgs_Toolstrip_Status";
+            Pgs_Toolstrip_Status.Size = new Size(100, 16);
+            Pgs_Toolstrip_Status.Style = ProgressBarStyle.Marquee;
+            Pgs_Toolstrip_Status.Visible = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(747, 507);
+            Controls.Add(statusStrip1);
             Controls.Add(groupBox1);
             Controls.Add(tableLayoutPanel1);
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -614,7 +641,10 @@
             tableLayoutPanel1.PerformLayout();
             Mnu_ListItem.ResumeLayout(false);
             Mnu_OrphanArchive.ResumeLayout(false);
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -680,5 +710,8 @@
         private ToolStripMenuItem moa_restoreNowToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator10;
         private ToolStripMenuItem moa_openBackupInExplorerToolStripMenuItem;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel Lbl_Toolstrip_Version;
+        private ToolStripProgressBar Pgs_Toolstrip_Status;
     }
 }

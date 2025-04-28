@@ -31,5 +31,10 @@ namespace REPOSaver
             OrphanArchive = orphanArchive;
             Type = MainListItemTagTypes.OrhpanArchive;
         }
+
+        public static explicit operator RepoSave(MainListItemTag tag)
+        {
+            return tag.RepoSave!;
+        }
     }
 }
