@@ -76,12 +76,9 @@ jobs:
 
       
       - name: Zip output
-        uses: somaz94/compress-decompress@v1
-        with:
-          command: compress
-          source: REPOSaver/bin/Release/net9.0-windows/publish
-          format: zip
-          destfilename: binaries.zip
+        run: |
+          Compress-Archive -Path REPOSaver/bin/Release/net9.0-windows/publish/* -DestinationPath binaries.zip
+        shell: pwsh
 
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
