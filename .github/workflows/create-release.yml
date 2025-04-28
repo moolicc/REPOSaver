@@ -72,12 +72,16 @@ jobs:
         run: |
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=v$xml.Project.PropertyGroup.AssemblyVersion"
+          "version=$xml.Project.PropertyGroup.AssemblyVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Zip output
+        run: |
+          zip -d binaries.zip REPOSaver/bin/Release/net9.0-windows/publish/*
 
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
         with:
-            artifacts: "REPOSaver/bin/Release/net9.0-windows/publish"
+            artifacts: binaries.zip
             generateReleaseNotes: true
             name: "Version ${{ steps.get_version.outputs.version }}"
             commit: master
