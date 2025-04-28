@@ -77,6 +77,7 @@ jobs:
 
       - name: get_version
         run: |
+          cd REPOSaver/
           echo "version=$(cat ver.txt)" >> $GITHUB_ENV
       
       - name: Zip output
