@@ -29,10 +29,24 @@ jobs:
           git config --global user.email "actions@github.com"
           git add REPOSaver/REPOSaver.csproj
           git commit -m "Automated version increment"
+          git push
+        shell: pwsh
+
+  update-dev:
+    needs: increment-version
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: dev
+
+      - name: Merge Master to Dev
+        run: |
+          git pull origin master
           git push origin dev
         shell: pwsh
-      
-      
+  
   build-and-publish:
     needs: increment-version
     runs-on: windows-latest
