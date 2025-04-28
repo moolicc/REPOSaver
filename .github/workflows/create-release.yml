@@ -74,9 +74,14 @@ jobs:
           [xml]$xml = Get-Content REPOSaver.csproj
           "version=$xml.Project.PropertyGroup.AssemblyVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
+      
       - name: Zip output
-        run: |
-          zip -d binaries.zip REPOSaver/bin/Release/net9.0-windows/publish/*
+        uses: somaz94/compress-decompress@v1
+        with:
+          command: compress
+          source: REPOSaver/bin/Release/net9.0-windows/publish
+          format: zip
+          destfilename: binaries.zip
 
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
