@@ -73,6 +73,7 @@ jobs:
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
           $xml.Project.PropertyGroup.AssemblyVersion | Out-File ./ver.txt
+        shell: pwsh
 
       - name: get_version
         run: |
