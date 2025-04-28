@@ -1,6 +1,8 @@
 using NLog;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.Intrinsics.Arm;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 
@@ -19,11 +21,14 @@ namespace REPOSaver
         private List<RepoSave> _saves;
         private FileSystemWatcher _savesWatcher;
 
+        private int _curOperations;
+
         public MainForm()
         {
             _saves = new List<RepoSave>();
             _savesWatcher = new FileSystemWatcher();
             _savesWatcher.EnableRaisingEvents = false;
+            _curOperations = 0;
 
 
             InitializeComponent();
@@ -37,6 +42,8 @@ namespace REPOSaver
             _savesWatcher.Filter = "*.es3";
 
             _savesWatcher.Changed += Watcher_Changed;
+
+            Lbl_Toolstrip_Version.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}, REPO Version: {Program.RepoVersion}";
 
             AutoDetectDirectory();
             ResizeListView();
@@ -96,11 +103,17 @@ namespace REPOSaver
 
                 if (item.ItemTag()!.Type == MainListItemTagTypes.RepoSave)
                 {
-                    Mnu_ListItem.Tag = item;
-                    autoRestoreToolStripMenuItem.Checked = ((RepoSave)item.Tag!).AutoWatchEnabled;
+                    var tag = item.ItemTag();
 
-                    restoreNowToolStripMenuItem.Enabled = ((RepoSave)item.Tag!).Status == SaveStatus.Idle;
-                    backupNowToolStripMenuItem.Enabled = ((RepoSave)item.Tag!).Status == SaveStatus.Idle;
+                    Mnu_ListItem.Tag = item;
+
+                    item.RepoSaveTag(save =>
+                    {
+                        autoRestoreToolStripMenuItem.Checked = save.AutoWatchEnabled;
+
+                        restoreNowToolStripMenuItem.Enabled = save.Status == SaveStatus.Idle;
+                        backupNowToolStripMenuItem.Enabled = save.Status == SaveStatus.Idle;
+                    });
 
                     if (item != null && item.Bounds.Contains(e.Location))
                     {
@@ -172,14 +185,14 @@ namespace REPOSaver
         private void restoreNowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
             Restore(save, selectedItem.Index);
         }
 
         private void backupNowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
             Backup(save, selectedItem.Index);
         }
 
@@ -191,7 +204,7 @@ namespace REPOSaver
                 return;
             }
 
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
             save.AutoWatchEnabled = autoRestoreToolStripMenuItem.Checked;
 
 
@@ -201,7 +214,7 @@ namespace REPOSaver
         private void openInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
 
             Process.Start("explorer.exe", $"/select,\"{save.MainFilePath}\"");
         }
@@ -209,7 +222,7 @@ namespace REPOSaver
         private void openBackupInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
 
             if (File.Exists(save.BackupFilePath))
             {
@@ -250,7 +263,7 @@ namespace REPOSaver
             if (Sdlg_ExportJson.ShowDialog() == DialogResult.OK)
             {
                 ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-                RepoSave save = (RepoSave)selectedItem.Tag!;
+                RepoSave save = selectedItem.ItemTag().RepoSave!;
                 var json = EasySave.ReadJson(save.MainFilePath);
 
                 File.WriteAllText(Sdlg_ExportJson.FileName, json);
@@ -261,7 +274,7 @@ namespace REPOSaver
         private void exportToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
             var json = EasySave.ReadJson(save.MainFilePath);
             Clipboard.SetText(json);
         }
@@ -271,7 +284,7 @@ namespace REPOSaver
             if (Odlg_ImportJson.ShowDialog() == DialogResult.OK)
             {
                 ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-                RepoSave save = (RepoSave)selectedItem.Tag!;
+                RepoSave save = selectedItem.ItemTag().RepoSave!;
                 string json = File.ReadAllText(Odlg_ImportJson.FileName);
 
                 // TODO: Update name field after importing.
@@ -282,7 +295,7 @@ namespace REPOSaver
         private void importFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
             string json = Clipboard.GetText();
 
             try
@@ -337,7 +350,7 @@ namespace REPOSaver
         private void cloneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ListViewItem selectedItem = Lst_Saves.SelectedItems[0];
-            RepoSave save = (RepoSave)selectedItem.Tag!;
+            RepoSave save = selectedItem.ItemTag().RepoSave!;
 
             _repoDirectory!.CopySave(save);
         }
@@ -495,6 +508,8 @@ namespace REPOSaver
             const int FILE_WAIT_TIME = 1000;
             const int FILE_WAIT_INTERVAL = 10;
 
+            IncrementOperationsCounter();
+
             // True if the save already existed prior to this edit.
             bool found = false;
 
@@ -540,11 +555,15 @@ namespace REPOSaver
                 _saves.Add(newSave);
                 Invoke(() => CreateListItem(newSave));
             }
+
+            DecrementOperationsCounter();
         }
 
         private void OnFileDeleted(FileSystemEventArgs e)
         {
             WatcherLogger.Info("File {0} not found. Game over probable.", e.FullPath);
+
+            IncrementOperationsCounter();
 
             for (int i = 0; i < _saves.Count; i++)
             {
@@ -559,6 +578,8 @@ namespace REPOSaver
                     Invoke(() => Restore(curSave, i));
                 }
             }
+
+            DecrementOperationsCounter();
         }
 
         #endregion
@@ -594,7 +615,7 @@ namespace REPOSaver
             {
                 return;
             }
-
+            IncrementOperationsCounter();
 
             _saves.AddRange(_repoDirectory.GetSaves());
 
@@ -619,10 +640,13 @@ namespace REPOSaver
                     }
                 }
             }
+
+            DecrementOperationsCounter();
         }
 
         private void ScanOrphanBackups()
         {
+            IncrementOperationsCounter();
             foreach (var archive in Directory.GetFiles(_repoDirectory!.BackupsDirectory))
             {
                 string name = Path.GetFileNameWithoutExtension(archive);
@@ -633,6 +657,7 @@ namespace REPOSaver
                     CreateListItem(archive);
                 }
             }
+            DecrementOperationsCounter();
         }
 
         private void Backup(RepoSave save, int itemIndex)
@@ -642,6 +667,7 @@ namespace REPOSaver
 
             _ = Task.Factory.StartNew(async s =>
             {
+                IncrementOperationsCounter();
                 var (forSave, index) = ((RepoSave, int))s!;
 
                 bool success = await Archiving.Backup(forSave.FullDirectoryPath, forSave.BackupFilePath);
@@ -655,6 +681,7 @@ namespace REPOSaver
                         UpdateSaveName(forSave, index);
                     });
                 }
+                DecrementOperationsCounter();
             }, (save, itemIndex));
         }
 
@@ -665,6 +692,7 @@ namespace REPOSaver
 
             Task.Factory.StartNew(async s =>
             {
+                IncrementOperationsCounter();
                 var (forSave, index) = ((RepoSave, int))s!;
 
                 bool success = await Archiving.Restore(forSave.BackupFilePath, forSave.FullDirectoryPath);
@@ -679,11 +707,13 @@ namespace REPOSaver
                         UpdateSaveName(forSave, index);
                     });
                 }
+                DecrementOperationsCounter();
             }, (save, itemIndex));
         }
 
         private void Restore(string archive, int itemIndex)
         {
+            IncrementOperationsCounter();
             string nameStub = Path.GetFileNameWithoutExtension(archive);
             string targetPath = Path.Combine(_repoDirectory!.SavesDirectory, nameStub);
 
@@ -693,11 +723,13 @@ namespace REPOSaver
 
             Lst_Saves.Items[itemIndex].BackColor = Lst_Saves.BackColor;
             Lst_Saves.Items[itemIndex].ToolTipText = "";
+            Lst_Saves.Items[itemIndex].Tag = new MainListItemTag(save);
 
             Archiving.Restore(archive, targetPath).ContinueWith(async t =>
             {
                 bool success = await t;
 
+                DecrementOperationsCounter();
             });
 
         }
@@ -784,6 +816,44 @@ namespace REPOSaver
                 return time.ToShortTimeString();
             }
             return $"{time.ToShortDateString()} {time.ToShortTimeString()}";
+        }
+
+        private void IncrementOperationsCounter()
+        {
+            Interlocked.Increment(ref _curOperations);
+            if(_curOperations > 0)
+            {
+                if(InvokeRequired)
+                {
+                    Invoke(() =>
+                    {
+                        Pgs_Toolstrip_Status.Visible = true;
+                    });
+                }
+                else
+                {
+                    Pgs_Toolstrip_Status.Visible = true;
+                }
+            }
+        }
+
+        private void DecrementOperationsCounter()
+        {
+            Interlocked.Decrement(ref _curOperations);
+            if (_curOperations <= 0)
+            {
+                if (InvokeRequired)
+                {
+                    Invoke(() =>
+                    {
+                        Pgs_Toolstrip_Status.Visible = false;
+                    });
+                }
+                else
+                {
+                    Pgs_Toolstrip_Status.Visible = false;
+                }
+            }
         }
     }
 }

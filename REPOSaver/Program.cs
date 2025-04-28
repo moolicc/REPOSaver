@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Configuration;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,6 +15,8 @@ namespace REPOSaver
 {
     internal static class Program
     {
+        public static string RepoVersion { get; private set; } = "";
+
         public static Logger Log => LogManager.GetLogger(nameof(Program));
 
         /// <summary>
@@ -22,12 +25,27 @@ namespace REPOSaver
         [STAThread]
         static void Main()
         {
+            ReadGameVersion();
             SetupLogging();
             int pid = Process.GetCurrentProcess().Id;
             Log.Info("Session Starting at {0} (PID: {1})", DateTime.UtcNow, pid);
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
             Log.Info("Session Ending at {0} (PID: {1})", DateTime.UtcNow, pid);
+        }
+
+        private static void ReadGameVersion()
+        {
+            const string RSC_NAME = "REPOSaver.gamever.txt";
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using (Stream stream = assembly.GetManifestResourceStream(RSC_NAME))
+            {
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    RepoVersion = reader.ReadToEnd().Trim();
+                }
+            }
         }
 
         private static void SetupLogging()

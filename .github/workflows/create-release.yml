@@ -1,0 +1,49 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  increment-version:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Run version update script
+        run: |
+          cd REPOSaver
+          ./incver_rel.ps1
+        shell: pwsh
+
+      - name: Create csproj artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: version-artifact
+          path: REPOSaver.csproj
+
+      - name: Push updated version to dev
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add REPOSaver.csproj
+          git commit -m "Automated version increment"
+          git push origin dev
+        shell: pwsh
+      
+      
+  build-and-publish:
+    needs: increment-version
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: CD to project
+        run: cd REPOSaver
+
+      - name: Download csproj artifact
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: version-artifact
