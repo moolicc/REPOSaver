@@ -72,7 +72,7 @@ jobs:
         run: |
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
-          $xml.Project.PropertyGroup.AssemblyVersion | Out-File ver.txt
+          $xml.Project.PropertyGroup.AssemblyVersion | Out-File ./ver.txt
 
       - name: get_version
         run: |
