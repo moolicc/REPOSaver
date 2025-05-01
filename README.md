@@ -4,6 +4,16 @@
 
 ![image](https://github.com/user-attachments/assets/dc8f0243-960c-44bb-924d-7a92c25591bf)
 
+REPOSaver performs two actions:
+
+  1) It enables automatic restoration of games the you (the players(s)) lose.
+  2) It enables save editing
+
+### To download
+On the right hand side find the "Latest release" and select the "binaries" download. Unzip the file anywhere and run the .exe file contained therein. Windows may be angry at it and try to keep you from running the program, but rest assured there is nothing nefarious going on. I'm just not going to pay MS for certification.
+
+That being said, I must put the usual disclaimer out there that I'm not responsible for any loss or corruption of data the program may cause to your computer or saves :)
+
 ## Save archiver
 
 The primary function of REPOSaver is to perform automated backups and restorations of game save files.
