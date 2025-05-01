@@ -69,17 +69,18 @@ jobs:
         run: dotnet publish --no-restore -c Release
 
       - name: Save version to file
+        id: get_version
         run: |
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
-          $xml.Project.PropertyGroup.AssemblyVersion | Out-File ./ver.txt
+          $version = $xml.Project.PropertyGroup.AssemblyVersion
+          $version | Out-File ./ver.txt
+          echo "VER=$version" >> $env:GITHUB
         shell: pwsh
 
       - name: get_version
         run: |
           cd REPOSaver/
-          echo "VER=$(cat ver.txt)" >> $GITHUB_OUTPUT
-          echo "VER=$(cat ver.txt)"
       
       - name: Zip output
         run: |
