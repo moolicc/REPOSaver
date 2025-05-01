@@ -76,13 +76,9 @@ jobs:
           $version = $xml.Project.PropertyGroup.AssemblyVersion
           $version | Out-File ./ver.txt
           echo "VER=$version" >> $env:GITHUB_OUTPUT
+          echo "Current version: $version"
+          echo "$xml"
         shell: pwsh
-
-      - name: temp
-        run: |
-          cd REPOSaver/
-      - name: Test
-        run: echo "${{ steps.get_version.outputs.VER }}"
       
       
       - name: Zip output
