@@ -647,6 +647,7 @@ namespace REPOSaver
         private void ScanOrphanBackups()
         {
             IncrementOperationsCounter();
+            bool foundOrphan = false;
             foreach (var archive in Directory.GetFiles(_repoDirectory!.BackupsDirectory))
             {
                 string name = Path.GetFileNameWithoutExtension(archive);
@@ -655,7 +656,12 @@ namespace REPOSaver
                 if (!Directory.Exists(expectedSaveDir))
                 {
                     CreateListItem(archive);
+                    foundOrphan = true;
                 }
+            }
+            if(foundOrphan)
+            {
+                MessageBox.Show("One or more saves have backups of saves, where the saves themselves no longer exist. These entries are colored orange in the list and may be restored.", "Note", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             DecrementOperationsCounter();
         }
