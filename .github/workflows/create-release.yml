@@ -7,6 +7,7 @@ on:
 jobs:
   increment-version:
     runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, '[nover]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -83,6 +84,8 @@ jobs:
       
       - name: Zip output
         run: |
+          if (Test-Path REPOSaver/bin/Release/net9.0-windows/publish/REPOSaver.pdb) { Remove-Item REPOSaver/bin/Release/net9.0-windows/publish/REPOSaver.pdb }
+          if (Test-Path REPOSaver/bin/Release/net9.0-windows/publish/REPOSaver.runtimeconfig.json) { Remove-Item REPOSaver/bin/Release/net9.0-windows/publish/REPOSaver.runtimeconfig.json }
           Compress-Archive -Path REPOSaver/bin/Release/net9.0-windows/publish/* -DestinationPath binaries.zip
         shell: pwsh
 
