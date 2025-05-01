@@ -60,7 +60,7 @@ jobs:
           dotnet-version: 9.x
 
       - name: Display dotnet version
-        run: dotnet --version
+        run: echo "$(dotnet --version)"
 
       - name: Restore packages
         run: dotnet restore
@@ -75,7 +75,7 @@ jobs:
           [xml]$xml = Get-Content REPOSaver.csproj
           $version = $xml.Project.PropertyGroup.AssemblyVersion
           $version | Out-File ./ver.txt
-          echo "VER=$version" >> $env:GITHUB
+          echo "VER=$version" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
       - name: temp
