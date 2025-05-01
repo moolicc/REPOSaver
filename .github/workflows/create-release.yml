@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+        with:
+          ref: "master"
           
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3.4.2
@@ -74,10 +76,8 @@ jobs:
           cd REPOSaver/
           [xml]$xml = Get-Content REPOSaver.csproj
           $version = $xml.Project.PropertyGroup.AssemblyVersion
-          $version | Out-File ./ver.txt
           echo "VER=$version" >> $env:GITHUB_OUTPUT
           echo "Current version: $version"
-          echo "$xml"
         shell: pwsh
       
       
