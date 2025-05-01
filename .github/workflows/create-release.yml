@@ -78,9 +78,12 @@ jobs:
           echo "VER=$version" >> $env:GITHUB
         shell: pwsh
 
-      - name: get_version
+      - name: temp
         run: |
           cd REPOSaver/
+      - name: Test
+        run: echo "${{ steps.get_version.outputs.VER }}"
+      
       
       - name: Zip output
         run: |
